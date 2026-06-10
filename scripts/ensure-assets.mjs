@@ -27,23 +27,26 @@ for (const dir of [imagesDir, fontsDir]) {
   if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
 }
 
-// Curated, vivid firework / Diwali imagery (Unsplash). Bundled locally.
+// Curated, vivid firework / Diwali imagery — a mix of Unsplash and Wikimedia
+// Commons photos, all bundled locally. Each entry maps to one image slot the
+// site uses (see lib/content.ts).
 const u = (id, w = 1200) =>
   `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=80`;
+const wm = (path) => `https://upload.wikimedia.org/wikipedia/commons/${path}`;
 
 const images = [
   { file: "hero.jpg", url: u("1498931299472-f7a63a5a1cfa", 1920), label: "Fireworks" },
-  { file: "sparklers.jpg", url: u("1481162854517-d9e353af153d"), label: "Sparklers" },
-  { file: "flower-pots.jpg", url: u("1467810563316-b5476525c0f9"), label: "Flower Pots" },
-  { file: "ground-chakkars.jpg", url: u("1492684223066-81342ee5ff30"), label: "Ground Chakkars" },
-  { file: "rockets.jpg", url: u("1576566588028-4147f3842f27"), label: "Rockets" },
-  { file: "aerial.jpg", url: u("1530103862676-de8c9debad1d"), label: "Aerial Sky Shots" },
-  { file: "fountains.jpg", url: u("1635776062127-d379bfcba9f8"), label: "Fountains" },
+  { file: "sparklers.jpg", url: u("1467810563316-b5476525c0f9"), label: "Sparklers" },
+  { file: "flower-pots.jpg", url: wm("thumb/6/6a/Diwali_crackers_at_Vizag_beach_1.jpg/1280px-Diwali_crackers_at_Vizag_beach_1.jpg"), label: "Flower Pots" },
+  { file: "ground-chakkars.jpg", url: wm("thumb/d/d6/Three_colors_flashing_wheel.jpg/1280px-Three_colors_flashing_wheel.jpg"), label: "Ground Chakkars" },
+  { file: "rockets.jpg", url: wm("thumb/a/a1/Fireworks_Launch.jpeg/1280px-Fireworks_Launch.jpeg"), label: "Rockets" },
+  { file: "aerial.jpg", url: u("1533230408708-8f9f91d1235a"), label: "Aerial Sky Shots" },
+  { file: "fountains.jpg", url: wm("thumb/6/6d/Beeston_MMB_29_Fireworks.jpg/1280px-Beeston_MMB_29_Fireworks.jpg"), label: "Fountains" },
   { file: "gift-boxes.jpg", url: u("1513885535751-8b9238bd345a"), label: "Gift Boxes" },
-  { file: "kids.jpg", url: u("1545048702-79362596cdc9"), label: "Kids' Crackers" },
-  { file: "sound.jpg", url: u("1565008576549-57569a49371d"), label: "Sound Crackers" },
-  { file: "combo.jpg", url: u("1543872084-c7bd3822856f"), label: "Combo Boxes" },
-  { file: "diwali-lamps.jpg", url: u("1607344645866-009c320b63e0"), label: "Diwali" },
+  { file: "kids.jpg", url: wm("thumb/3/38/Woman_holding_sparkler_%28Unsplash%29.jpg/1280px-Woman_holding_sparkler_%28Unsplash%29.jpg"), label: "Kids' Crackers" },
+  { file: "sound.jpg", url: wm("thumb/d/d8/Crackers_at_Diwali_in_Guntur.jpg/1280px-Crackers_at_Diwali_in_Guntur.jpg"), label: "Sound Crackers" },
+  { file: "combo.jpg", url: u("1607344645866-009c320b63e0"), label: "Combo Boxes" },
+  { file: "diwali-lamps.jpg", url: wm("thumb/1/18/Diwali_Oil_lamps_Darjeeling.jpg/1280px-Diwali_Oil_lamps_Darjeeling.jpg"), label: "Diwali" },
   { file: "og-image.jpg", url: u("1498931299472-f7a63a5a1cfa", 1200), label: "Harsha Firecracker" },
 ];
 
@@ -69,7 +72,8 @@ const fonts = [
 
 function download(url, dest, redirects = 0) {
   return new Promise((resolve, reject) => {
-    const req = https.get(url, { headers: { "User-Agent": "Mozilla/5.0" } }, (res) => {
+    // Descriptive UA — Wikimedia rejects blank/generic user agents.
+    const req = https.get(url, { headers: { "User-Agent": "Mozilla/5.0 HarshaFirecrackerSite/1.0 (asset bundler)" } }, (res) => {
       if ([301, 302, 303, 307, 308].includes(res.statusCode) && res.headers.location && redirects < 6) {
         res.resume();
         return resolve(download(res.headers.location, dest, redirects + 1));
